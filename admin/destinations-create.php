@@ -18,7 +18,9 @@ $flash = getFlash();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background-color: #f8f9fa; }
-        .sidebar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; color: white; }
+        .btn-primary { background: #FF631E; border: none; }
+        .btn-primary:hover { background: #e55a1a; }
+        .sidebar { background: linear-gradient(135deg, #FF631E 0%, #201966 100%); min-height: 100vh; color: white; }
         .sidebar .nav-link { color: rgba(255,255,255,0.8); padding: 12px 20px; border-radius: 8px; margin: 5px 10px; }
         .sidebar .nav-link:hover, .sidebar .nav-link.active { background: rgba(255,255,255,0.2); color: white; }
         .sidebar .nav-link i { width: 25px; }
@@ -69,8 +71,8 @@ $flash = getFlash();
                                 <div class="mb-3"><label class="form-label">Description</label><textarea class="form-control" name="description" rows="5"></textarea></div>
                             </div>
                             <div class="col-md-4">
-                                <div class="mb-3"><label class="form-label">Image</label><input type="file" class="form-control" name="image" accept="image/*"></div>
-                                <div class="mb-3"><label class="form-label">Banner Image</label><input type="file" class="form-control" name="banner_image" accept="image/*"></div>
+                                <div class="mb-3"><label class="form-label">Image</label><input type="file" class="form-control" name="image" accept="image/*"><small class="text-muted">Recommended: 800x600px</small></div>
+                                <div class="mb-3"><label class="form-label">Banner Image</label><input type="file" class="form-control" name="banner_image" accept="image/*"><small class="text-muted">Recommended: 1920x600px</small></div>
                                 <div class="mb-3"><label class="form-label">Status</label><select class="form-select" name="status"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
                                 <div class="mb-3"><div class="form-check"><input class="form-check-input" type="checkbox" name="featured" value="yes" id="featured"><label class="form-check-label" for="featured">Featured</label></div></div>
                                 <div class="mb-3"><div class="form-check"><input class="form-check-input" type="checkbox" name="popular" value="yes" id="popular"><label class="form-check-label" for="popular">Popular</label></div></div>

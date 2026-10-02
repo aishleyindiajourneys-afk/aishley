@@ -24,8 +24,10 @@ $flash = getFlash();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background-color: #f8f9fa; }
+        .btn-primary { background: #FF631E; border: none; }
+        .btn-primary:hover { background: #e55a1a; }
         .sidebar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #FF631E 0%, #201966 100%);
             min-height: 100vh;
             color: white;
         }

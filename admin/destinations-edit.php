@@ -27,7 +27,9 @@ if (!$destination) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background-color: #f8f9fa; }
-        .sidebar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; color: white; }
+        .btn-primary { background: #FF631E; border: none; }
+        .btn-primary:hover { background: #e55a1a; }
+        .sidebar { background: linear-gradient(135deg, #FF631E 0%, #201966 100%); min-height: 100vh; color: white; }
         .sidebar .nav-link { color: rgba(255,255,255,0.8); padding: 12px 20px; border-radius: 8px; margin: 5px 10px; }
         .sidebar .nav-link:hover, .sidebar .nav-link.active { background: rgba(255,255,255,0.2); color: white; }
         .sidebar .nav-link i { width: 25px; }
@@ -79,8 +81,8 @@ if (!$destination) {
                                 <div class="mb-3"><label class="form-label">Description</label><textarea class="form-control" name="description" rows="5"><?= htmlspecialchars($destination['description']) ?></textarea></div>
                             </div>
                             <div class="col-md-4">
-                                <div class="mb-3"><label class="form-label">Image</label><input type="file" class="form-control" name="image" accept="image/*"><?php if ($destination['image']): ?><img src="<?= UPLOAD_URL.$destination['image'] ?>" class="mt-2" width="100%" style="max-height:150px;object-fit:cover;border-radius:5px;"><?php endif; ?></div>
-                                <div class="mb-3"><label class="form-label">Banner Image</label><input type="file" class="form-control" name="banner_image" accept="image/*"><?php if ($destination['banner_image']): ?><img src="<?= UPLOAD_URL.$destination['banner_image'] ?>" class="mt-2" width="100%" style="max-height:150px;object-fit:cover;border-radius:5px;"><?php endif; ?></div>
+                                <div class="mb-3"><label class="form-label">Image</label><input type="file" class="form-control" name="image" accept="image/*"><?php if ($destination['image']): ?><img src="<?= UPLOAD_URL.$destination['image'] ?>" class="mt-2" width="100%" style="max-height:150px;object-fit:cover;border-radius:5px;"><?php endif; ?><small class="text-muted">Recommended: 800x600px</small></div>
+                                <div class="mb-3"><label class="form-label">Banner Image</label><input type="file" class="form-control" name="banner_image" accept="image/*"><?php if ($destination['banner_image']): ?><img src="<?= UPLOAD_URL.$destination['banner_image'] ?>" class="mt-2" width="100%" style="max-height:150px;object-fit:cover;border-radius:5px;"><?php endif; ?><small class="text-muted">Recommended: 1920x600px</small></div>
                                 <div class="mb-3"><label class="form-label">Status</label><select class="form-select" name="status"><option value="active" <?= $destination['status'] == 'active' ? 'selected' : '' ?>>Active</option><option value="inactive" <?= $destination['status'] == 'inactive' ? 'selected' : '' ?>>Inactive</option></select></div>
                                 <div class="mb-3"><div class="form-check"><input class="form-check-input" type="checkbox" name="featured" value="yes" id="featured" <?= $destination['featured'] == 'yes' ? 'checked' : '' ?>><label class="form-check-label" for="featured">Featured</label></div></div>
                                 <div class="mb-3"><div class="form-check"><input class="form-check-input" type="checkbox" name="popular" value="yes" id="popular" <?= $destination['popular'] == 'yes' ? 'checked' : '' ?>><label class="form-check-label" for="popular">Popular</label></div></div>

@@ -24,7 +24,9 @@ $flash = getFlash();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background-color: #f8f9fa; }
-        .sidebar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; color: white; }
+        .btn-primary { background: #FF631E; border: none; }
+        .btn-primary:hover { background: #e55a1a; }
+        .sidebar { background: linear-gradient(135deg, #FF631E 0%, #201966 100%); min-height: 100vh; color: white; }
         .sidebar .nav-link { color: rgba(255,255,255,0.8); padding: 12px 20px; border-radius: 8px; margin: 5px 10px; }
         .sidebar .nav-link:hover, .sidebar .nav-link.active { background: rgba(255,255,255,0.2); color: white; }
         .sidebar .nav-link i { width: 25px; }
@@ -109,7 +111,7 @@ $flash = getFlash();
                 <div class="modal-header"><h5 class="modal-title">Upload File</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
                 <form action="<?= SITE_URL ?>/controllers/AdminController.php?action=media-upload" method="POST" enctype="multipart/form-data">
                     <div class="modal-body">
-                        <div class="mb-3"><label class="form-label">File *</label><input type="file" class="form-control" name="file" required></div>
+                        <div class="mb-3"><label class="form-label">File *</label><input type="file" class="form-control" name="file" required><small class="text-muted">Max size: 5MB. For images: 1920x1080px recommended</small></div>
                         <div class="mb-3"><label class="form-label">Alt Text</label><input type="text" class="form-control" name="alt_text"></div>
                     </div>
                     <div class="modal-footer"><button type="submit" class="btn btn-primary">Upload</button></div>

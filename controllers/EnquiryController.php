@@ -21,6 +21,7 @@ switch ($action) {
  * Handle Create Enquiry
  */
 function handleCreateEnquiry() {
+    global $pdo;
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         redirect(SITE_URL);
     }
@@ -32,8 +33,16 @@ function handleCreateEnquiry() {
     $subject = sanitize($_POST['subject'] ?? '');
     $message = sanitize($_POST['message']);
     
+    // Check if AJAX request
+    $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
+    
     // Validation
     if (empty($name) || empty($email) || empty($phone) || empty($message)) {
+        if ($isAjax) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Please fill all required fields']);
+            exit;
+        }
         setFlash('error', 'Please fill all required fields');
         redirect($_SERVER['HTTP_REFERER'] ?? SITE_URL);
     }
@@ -62,8 +71,19 @@ function handleCreateEnquiry() {
         
         sendEmail($adminEmail, $emailSubject, $emailBody);
         
+        if ($isAjax) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => true, 'message' => 'Enquiry submitted successfully']);
+            exit;
+        }
+        
         setFlash('success', 'Thank you for your enquiry! We will contact you soon.');
     } catch (PDOException $e) {
+        if ($isAjax) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Failed to submit enquiry']);
+            exit;
+        }
         setFlash('error', 'Failed to submit enquiry. Please try again.');
     }
     

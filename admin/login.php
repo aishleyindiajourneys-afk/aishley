@@ -19,7 +19,7 @@ $flash = getFlash();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #FF631E 0%, #201966 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -34,7 +34,7 @@ $flash = getFlash();
             width: 100%;
         }
         .login-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #FF631E 0%, #201966 100%);
             color: white;
             padding: 30px;
             text-align: center;
@@ -52,11 +52,11 @@ $flash = getFlash();
             border: 1px solid #ddd;
         }
         .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            border-color: #FF631E;
+            box-shadow: 0 0 0 0.2rem rgba(255, 99, 30, 0.25);
         }
         .btn-login {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #FF631E;
             border: none;
             border-radius: 8px;
             padding: 12px;
@@ -66,6 +66,7 @@ $flash = getFlash();
             transition: transform 0.2s;
         }
         .btn-login:hover {
+            background: #e55a1a;
             transform: translateY(-2px);
             color: white;
         }
@@ -74,8 +75,8 @@ $flash = getFlash();
 <body>
     <div class="login-card">
         <div class="login-header">
+            <img src="<?= UPLOAD_URL ?>website/logo.png" alt="Aishley India Journeys" class="mb-3" style="height: 50px; margin-right: 10px;">
             <h2><i class="fas fa-user-shield me-2"></i>Admin Login</h2>
-            <p class="mb-0 mt-2">Aishley India Journeys</p>
         </div>
         <div class="login-body">
             <?php if ($flash): ?>

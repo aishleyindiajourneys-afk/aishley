@@ -29,21 +29,24 @@ $pageDescription = $settings['seo_description'] ?? "Experience the magic of Indi
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #667eea; --secondary: #764ba2; }
+        :root { --primary: #FF631E; --secondary: #201966; --light-bg: #EAE9E7; --white: #FEFEFE; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         .hero-section {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.9), rgba(118, 75, 162, 0.9)), url('https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=1920') center/cover;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.5)), url('uploads/gallery/slide 1.png') center/cover;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             min-height: 80vh;
             display: flex;
             align-items: center;
             color: white;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
         .navbar { background: rgba(255,255,255,0.95) !important; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .navbar-brand { font-weight: 700; color: var(--primary) !important; }
+        .navbar-brand img { height: 40px; }
         .nav-link { color: #333 !important; font-weight: 500; }
         .nav-link:hover { color: var(--primary) !important; }
-        .btn-primary { background: linear-gradient(135deg, var(--primary), var(--secondary)); border: none; }
-        .btn-primary:hover { background: linear-gradient(135deg, var(--secondary), var(--primary)); }
+        .btn-primary { background: #FF631E; border: none; }
+        .btn-primary:hover { background: #e55a1a; }
         .section-title { position: relative; margin-bottom: 40px; }
         .section-title::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 60px; height: 3px; background: linear-gradient(135deg, var(--primary), var(--secondary)); }
         .tour-card { border: none; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); transition: transform 0.3s, box-shadow 0.3s; overflow: hidden; }
@@ -55,9 +58,176 @@ $pageDescription = $settings['seo_description'] ?? "Experience the magic of Indi
         .destination-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); display: flex; align-items: flex-end; padding: 20px; }
         .testimonial-card { background: white; border-radius: 15px; padding: 30px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
         .cta-section { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; padding: 80px 0; }
-        .footer { background: #1a1a2e; color: white; padding: 60px 0 30px; }
-        .footer a { color: #aaa; text-decoration: none; }
-        .footer a:hover { color: white; }
+        .footer { background: #201966; color: #FEFEFE; padding: 60px 0 30px; }
+        .footer h5 { color: #FEFEFE; font-weight: 600; margin-bottom: 20px; }
+        .footer a { color: #EAE9E7; text-decoration: none; }
+        .footer a:hover { color: #FF631E; }
+        .footer .text-muted { color: #EAE9E7 !important; }
+        .footer p { color: #EAE9E7; }
+        .footer i { color: #EAE9E7; }
+        
+        /* World Map Background for white sections */
+        .world-map-section {
+            position: relative;
+            background-image: url('uploads/website/bg-1.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        .world-map-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.92);
+            pointer-events: none;
+        }
+        .world-map-section > * {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* AI Chatbot */
+        .chatbot-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #FF631E, #201966);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 9999;
+            transition: transform 0.3s;
+        }
+        .chatbot-button:hover {
+            transform: scale(1.1);
+        }
+        .chatbot-button i {
+            color: white;
+            font-size: 28px;
+        }
+        .chatbot-window {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 350px;
+            height: 450px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.3);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .chatbot-window.active {
+            display: flex;
+        }
+        .chatbot-header {
+            background: linear-gradient(135deg, #FF631E, #201966);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chatbot-header h5 {
+            margin: 0;
+            font-size: 16px;
+        }
+        .chatbot-header .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .chatbot-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background: #f5f5f5;
+        }
+        .chatbot-message {
+            margin-bottom: 10px;
+            max-width: 80%;
+        }
+        .chatbot-message.bot {
+            background: #e3f2fd;
+            padding: 10px 15px;
+            border-radius: 15px 15px 15px 0;
+            align-self: flex-start;
+        }
+        .chatbot-message.user {
+            background: #FF631E;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 15px 15px 0 15px;
+            margin-left: auto;
+        }
+        .chatbot-input {
+            padding: 15px;
+            border-top: 1px solid #ddd;
+            display: flex;
+            gap: 10px;
+        }
+        .chatbot-input input {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            padding: 10px 15px;
+            outline: none;
+        }
+        .chatbot-input button {
+            background: #FF631E;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+        }
+        
+        /* Welcome Banner */
+        .welcome-banner {
+            background: linear-gradient(135deg, #FF631E, #201966);
+            color: white;
+            padding: 15px 0;
+            text-align: center;
+            position: relative;
+        }
+        .welcome-banner p {
+            margin: 0;
+            font-size: 14px;
+        }
+        .welcome-banner a {
+            color: white;
+            text-decoration: underline;
+            font-weight: 600;
+        }
+        .welcome-banner .close-banner {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            opacity: 0.8;
+        }
+        .welcome-banner .close-banner:hover {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -67,7 +237,7 @@ $pageDescription = $settings['seo_description'] ?? "Experience the magic of Indi
     
     <nav class="navbar navbar-expand-lg navbar-light fixed-top">
         <div class="container">
-            <a class="navbar-brand" href="<?= SITE_URL ?>"><i class="fas fa-route me-2"></i><?= htmlspecialchars($settings['site_name']) ?></a>
+            <a class="navbar-brand" href="<?= SITE_URL ?>"><img src="<?= UPLOAD_URL ?>website/logo.png" alt="<?= htmlspecialchars($settings['site_name']) ?>" style="height: 40px; margin-right: 10px;"><span style="color: #201966; font-weight: 600;"><?= htmlspecialchars($settings['site_name']) ?></span></a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
@@ -88,6 +258,14 @@ $pageDescription = $settings['seo_description'] ?? "Experience the magic of Indi
         </div>
     </nav>
     
+    <!-- Welcome Banner -->
+    <div class="welcome-banner" id="welcomeBanner">
+        <div class="container">
+            <p>Welcome to Aishley India Journey, talk with our travel experts for instant quote, you can leave your inquiry on <a href="https://wa.me/919876543210" target="_blank">WhatsApp</a> & Call <a href="tel:+919876543210">+91 9876543210</a></p>
+        </div>
+        <button class="close-banner" onclick="closeWelcomeBanner()">&times;</button>
+    </div>
+    
     <section class="hero-section">
         <div class="container">
             <div class="row">
@@ -101,7 +279,7 @@ $pageDescription = $settings['seo_description'] ?? "Experience the magic of Indi
         </div>
     </section>
     
-    <section class="py-5">
+    <section class="py-5 world-map-section">
         <div class="container">
             <h2 class="text-center section-title">Featured Tours</h2>
             <?php if ($featuredTours): ?>
@@ -130,7 +308,10 @@ $pageDescription = $settings['seo_description'] ?? "Experience the magic of Indi
                                                 <span class="fw-bold text-primary"><?= formatPrice($tour['price']) ?></span>
                                             <?php endif; ?>
                                         </div>
-                                        <a href="tour-details.php?slug=<?= $tour['slug'] ?>" class="btn btn-sm btn-outline-primary">View Details</a>
+                                        <div class="btn-group">
+                                            <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $settings['contact_phone'] ?? '') ?>?text=<?= urlencode('Hi, I am interested in the tour: ' . $tour['title']) ?>" target="_blank" class="btn btn-sm btn-success"><i class="fab fa-whatsapp me-1"></i>WhatsApp</a>
+                                            <a href="tour-details.php?slug=<?= $tour['slug'] ?>" class="btn btn-sm btn-outline-primary">View Details</a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -174,7 +355,7 @@ $pageDescription = $settings['seo_description'] ?? "Experience the magic of Indi
         </div>
     </section>
     
-    <section class="py-5">
+    <section class="py-5 world-map-section">
         <div class="container">
             <h2 class="text-center section-title">Why Choose Us</h2>
             <div class="row mt-4">
@@ -234,32 +415,101 @@ $pageDescription = $settings['seo_description'] ?? "Experience the magic of Indi
         </div>
     </section>
     
-    <section class="py-5">
+    <section class="py-5 world-map-section">
         <div class="container">
-            <h2 class="text-center section-title">Latest from Our Blog</h2>
-            <?php if ($latestBlogs): ?>
-                <div class="row mt-4">
-                    <?php foreach ($latestBlogs as $blog): ?>
-                        <div class="col-md-4 mb-4">
-                            <div class="tour-card">
-                                <?php if ($blog['featured_image']): ?>
-                                    <img src="<?= UPLOAD_URL . $blog['featured_image'] ?>" alt="<?= htmlspecialchars($blog['title']) ?>">
-                                <?php else: ?>
-                                    <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;"><i class="fas fa-image fa-3x text-muted"></i></div>
-                                <?php endif; ?>
-                                <div class="card-body p-4">
-                                    <small class="text-muted"><i class="fas fa-folder me-1"></i><?= htmlspecialchars($blog['category_name']) ?></small>
-                                    <h5 class="card-title mt-2"><?= htmlspecialchars($blog['title']) ?></h5>
-                                    <p class="card-text text-muted small"><?= truncate($blog['excerpt'], 100) ?></p>
-                                    <a href="blog-details.php?slug=<?= $blog['slug'] ?>" class="btn btn-sm btn-outline-primary">Read More</a>
+            <h2 class="text-center section-title">Our Partner Hotels</h2>
+            <div id="hotelCarousel" class="carousel slide mt-4" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="card h-100 border-0 shadow-sm">
+                                    <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop" class="card-img-top" alt="Hotel 1" style="height: 200px; object-fit: cover;">
+                                    <div class="card-body text-center">
+                                        <h6 class="card-title">Taj Palace</h6>
+                                        <p class="text-muted small">New Delhi</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card h-100 border-0 shadow-sm">
+                                    <img src="https://images.unsplash.com/photo-1582719508461-905c673771fd?w=400&h=300&fit=crop" class="card-img-top" alt="Hotel 2" style="height: 200px; object-fit: cover;">
+                                    <div class="card-body text-center">
+                                        <h6 class="card-title">Oberoi Hotels</h6>
+                                        <p class="text-muted small">Mumbai</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card h-100 border-0 shadow-sm">
+                                    <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=400&h=300&fit=crop" class="card-img-top" alt="Hotel 3" style="height: 200px; object-fit: cover;">
+                                    <div class="card-body text-center">
+                                        <h6 class="card-title">ITC Grand</h6>
+                                        <p class="text-muted small">Bangalore</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card h-100 border-0 shadow-sm">
+                                    <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=400&h=300&fit=crop" class="card-img-top" alt="Hotel 4" style="height: 200px; object-fit: cover;">
+                                    <div class="card-body text-center">
+                                        <h6 class="card-title">Leela Palace</h6>
+                                        <p class="text-muted small">Chennai</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    <?php endforeach; ?>
+                    </div>
+                    <div class="carousel-item">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="card h-100 border-0 shadow-sm">
+                                    <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=400&h=300&fit=crop" class="card-img-top" alt="Hotel 5" style="height: 200px; object-fit: cover;">
+                                    <div class="card-body text-center">
+                                        <h6 class="card-title">Marriott</h6>
+                                        <p class="text-muted small">Jaipur</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card h-100 border-0 shadow-sm">
+                                    <img src="https://images.unsplash.com/photo-1445019980597-93fa8acb246c?w=400&h=300&fit=crop" class="card-img-top" alt="Hotel 6" style="height: 200px; object-fit: cover;">
+                                    <div class="card-body text-center">
+                                        <h6 class="card-title">Hyatt Regency</h6>
+                                        <p class="text-muted small">Kolkata</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card h-100 border-0 shadow-sm">
+                                    <img src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=400&h=300&fit=crop" class="card-img-top" alt="Hotel 7" style="height: 200px; object-fit: cover;">
+                                    <div class="card-body text-center">
+                                        <h6 class="card-title">Radisson Blu</h6>
+                                        <p class="text-muted small">Goa</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card h-100 border-0 shadow-sm">
+                                    <img src="https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=400&h=300&fit=crop" class="card-img-top" alt="Hotel 8" style="height: 200px; object-fit: cover;">
+                                    <div class="card-body text-center">
+                                        <h6 class="card-title">Hilton</h6>
+                                        <p class="text-muted small">Hyderabad</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            <?php else: ?>
-                <p class="text-center text-muted">No blog posts yet.</p>
-            <?php endif; ?>
+                <button class="carousel-control-prev" type="button" data-bs-target="#hotelCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon bg-dark rounded-circle" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#hotelCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon bg-dark rounded-circle" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
         </div>
     </section>
     
@@ -285,20 +535,16 @@ $pageDescription = $settings['seo_description'] ?? "Experience the magic of Indi
         </div>
     </section>
     
-    <footer class="footer">
-        <div class="container">
+    <footer class="footer position-relative overflow-hidden">
+        <div class="footer-bg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('uploads/website/bg-1.jpg'); background-size: cover; background-position: center; opacity: 0.05; pointer-events: none;"></div>
+        <div class="container position-relative" style="z-index: 1;">
             <div class="row">
-                <div class="col-md-4 mb-4">
-                    <h5><?= htmlspecialchars($settings['site_name']) ?></h5>
+                <div class="col-md-3 mb-4">
+                    <img src="<?= UPLOAD_URL ?>website/logo.png" alt="<?= htmlspecialchars($settings['site_name']) ?>" class="mb-3" style="height: 50px;">
                     <p class="text-muted"><?= htmlspecialchars($settings['site_tagline']) ?></p>
-                    <div class="mt-3">
-                        <?php if ($settings['social_facebook']): ?><a href="<?= $settings['social_facebook'] ?>" class="me-3"><i class="fab fa-facebook fa-lg"></i></a><?php endif; ?>
-                        <?php if ($settings['social_twitter']): ?><a href="<?= $settings['social_twitter'] ?>" class="me-3"><i class="fab fa-twitter fa-lg"></i></a><?php endif; ?>
-                        <?php if ($settings['social_instagram']): ?><a href="<?= $settings['social_instagram'] ?>" class="me-3"><i class="fab fa-instagram fa-lg"></i></a><?php endif; ?>
-                        <?php if ($settings['social_youtube']): ?><a href="<?= $settings['social_youtube'] ?>" class="me-3"><i class="fab fa-youtube fa-lg"></i></a><?php endif; ?>
-                    </div>
+                    <p class="text-muted small mt-3">We are Registered Tours and Travel Agency and highly qualified Tour Operators in Agra, India. Our mission is to provide our guests with the greatest possible tours and travel experience. We have fifteen years of experience in the travel industry.</p>
                 </div>
-                <div class="col-md-4 mb-4">
+                <div class="col-md-3 mb-4">
                     <h5>Quick Links</h5>
                     <ul class="list-unstyled">
                         <li><a href="tours.php">Tours</a></li>
@@ -307,12 +553,48 @@ $pageDescription = $settings['seo_description'] ?? "Experience the magic of Indi
                         <li><a href="gallery.php">Gallery</a></li>
                         <li><a href="contact.php">Contact Us</a></li>
                     </ul>
+                    <div class="mt-3">
+                        <img src="<?= UPLOAD_URL ?>footer_image/imgi_55_payment-cash.png" alt="Cash Payment" style="height: 80px;">
+                    </div>
                 </div>
-                <div class="col-md-4 mb-4">
+                <div class="col-md-3 mb-4">
                     <h5>Contact Info</h5>
                     <p class="text-muted"><i class="fas fa-envelope me-2"></i><?= htmlspecialchars($settings['contact_email']) ?></p>
                     <p class="text-muted"><i class="fas fa-phone me-2"></i><?= htmlspecialchars($settings['contact_phone']) ?></p>
                     <p class="text-muted"><i class="fas fa-map-marker-alt me-2"></i><?= htmlspecialchars($settings['contact_address']) ?></p>
+                    <div class="mt-3">
+                        <h6 class="text-muted small mb-2">Our Partners</h6>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <img src="<?= UPLOAD_URL ?>footer_image/imgi_56_ap1.png" alt="Partner 1" style="height: 35px;">
+                            <img src="<?= UPLOAD_URL ?>footer_image/imgi_57_ap2.png" alt="Partner 2" style="height: 35px;">
+                            <img src="<?= UPLOAD_URL ?>footer_image/imgi_58_ap3.png" alt="Partner 3" style="height: 35px;">
+                            <img src="<?= UPLOAD_URL ?>footer_image/imgi_59_ap4.png" alt="Partner 4" style="height: 35px;">
+                            <img src="<?= UPLOAD_URL ?>footer_image/imgi_60_ap5.png" alt="Partner 5" style="height: 35px;">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h5>Popular Tours</h5>
+                    <ul class="list-unstyled small">
+                        <li><a href="tour-details.php?slug=golden-triangle-tour" class="text-muted">Golden Triangle Tour</a></li>
+                        <li><a href="tour-details.php?slug=kerala-backwaters" class="text-muted">Kerala Backwaters</a></li>
+                        <li><a href="tour-details.php?slug=rajasthan-heritage" class="text-muted">Rajasthan Heritage</a></li>
+                        <li><a href="tour-details.php?slug=goa-beach-vacation" class="text-muted">Goa Beach Vacation</a></li>
+                    </ul>
+                    <div class="mt-3">
+                        <h6 class="text-muted small mb-2">Payment Methods</h6>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <img src="<?= UPLOAD_URL ?>footer_image/imgi_51_paypal.png" alt="PayPal" style="height: 25px;">
+                            <img src="<?= UPLOAD_URL ?>footer_image/imgi_52_mastercard.png" alt="Mastercard" style="height: 25px;">
+                            <img src="<?= UPLOAD_URL ?>footer_image/imgi_53_visa.png" alt="Visa" style="height: 25px;">
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <?php if ($settings['social_facebook']): ?><a href="<?= $settings['social_facebook'] ?>" class="me-2"><i class="fab fa-facebook fa-lg"></i></a><?php endif; ?>
+                        <?php if ($settings['social_twitter']): ?><a href="<?= $settings['social_twitter'] ?>" class="me-2"><i class="fab fa-twitter fa-lg"></i></a><?php endif; ?>
+                        <?php if ($settings['social_instagram']): ?><a href="<?= $settings['social_instagram'] ?>" class="me-2"><i class="fab fa-instagram fa-lg"></i></a><?php endif; ?>
+                        <?php if ($settings['social_youtube']): ?><a href="<?= $settings['social_youtube'] ?>" class="me-2"><i class="fab fa-youtube fa-lg"></i></a><?php endif; ?>
+                    </div>
                 </div>
             </div>
             <hr class="my-4 border-secondary">
@@ -328,6 +610,156 @@ $pageDescription = $settings['seo_description'] ?? "Experience the magic of Indi
         </div>
     </footer>
     
+    <!-- AI Chatbot -->
+    <div class="chatbot-button" onclick="toggleChatbot()">
+        <i class="fas fa-headset"></i>
+    </div>
+    <div class="chatbot-window" id="chatbotWindow">
+        <div class="chatbot-header">
+            <h5><i class="fas fa-headset me-2"></i>Customer Support</h5>
+            <button class="close-btn" onclick="toggleChatbot()">&times;</button>
+        </div>
+        <div class="chatbot-messages" id="chatbotMessages">
+            <div class="chatbot-message bot">
+                Hello! I'm here to help you. Please provide some information so our agent can connect with you soon.
+            </div>
+        </div>
+        <div class="chatbot-input" id="chatbotInputContainer">
+            <input type="text" id="chatbotInput" placeholder="Type your answer..." onkeypress="handleKeyPress(event)">
+            <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function closeWelcomeBanner() {
+            document.getElementById('welcomeBanner').style.display = 'none';
+        }
+        
+        let currentStep = 0;
+        let enquiryData = {
+            name: '',
+            email: '',
+            phone: '',
+            message: ''
+        };
+        
+        const questions = [
+            { field: 'name', question: 'What is your name?', placeholder: 'Enter your name' },
+            { field: 'email', question: 'What is your email address?', placeholder: 'Enter your email' },
+            { field: 'phone', question: 'What is your phone number?', placeholder: 'Enter your phone number' },
+            { field: 'message', question: 'How can we help you?', placeholder: 'Describe your query' }
+        ];
+        
+        function toggleChatbot() {
+            const chatbotWindow = document.getElementById('chatbotWindow');
+            chatbotWindow.classList.toggle('active');
+            if (chatbotWindow.classList.contains('active') && currentStep === 0) {
+                showQuestion();
+            }
+        }
+        
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+        
+        function showQuestion() {
+            const messagesContainer = document.getElementById('chatbotMessages');
+            const input = document.getElementById('chatbotInput');
+            
+            if (currentStep < questions.length) {
+                const botMessage = document.createElement('div');
+                botMessage.className = 'chatbot-message bot';
+                botMessage.textContent = questions[currentStep].question;
+                messagesContainer.appendChild(botMessage);
+                input.placeholder = questions[currentStep].placeholder;
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+        }
+        
+        function sendMessage() {
+            const input = document.getElementById('chatbotInput');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            const messagesContainer = document.getElementById('chatbotMessages');
+            
+            // Add user message
+            const userMessage = document.createElement('div');
+            userMessage.className = 'chatbot-message user';
+            userMessage.textContent = message;
+            messagesContainer.appendChild(userMessage);
+            
+            // Store answer
+            if (currentStep < questions.length) {
+                enquiryData[questions[currentStep].field] = message;
+                currentStep++;
+                input.value = '';
+                
+                // Scroll to bottom
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                
+                // Show next question or submit
+                setTimeout(() => {
+                    if (currentStep < questions.length) {
+                        showQuestion();
+                    } else {
+                        submitEnquiry();
+                    }
+                }, 500);
+            }
+        }
+        
+        function submitEnquiry() {
+            const messagesContainer = document.getElementById('chatbotMessages');
+            const inputContainer = document.getElementById('chatbotInputContainer');
+            
+            // Show processing message
+            const botMessage = document.createElement('div');
+            botMessage.className = 'chatbot-message bot';
+            botMessage.textContent = 'Submitting your enquiry...';
+            messagesContainer.appendChild(botMessage);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Submit to server
+            fetch('controllers/EnquiryController.php?action=create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: new URLSearchParams(enquiryData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                const finalMessage = document.createElement('div');
+                finalMessage.className = 'chatbot-message bot';
+                finalMessage.textContent = 'Thank you! Our agent will connect with you soon.';
+                messagesContainer.appendChild(finalMessage);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                
+                // Hide input
+                inputContainer.style.display = 'none';
+                
+                // Reset after 3 seconds
+                setTimeout(() => {
+                    currentStep = 0;
+                    enquiryData = { name: '', email: '', phone: '', message: '' };
+                    messagesContainer.innerHTML = '<div class="chatbot-message bot">Hello! I\'m here to help you. Please provide some information so our agent can connect with you soon.</div>';
+                    inputContainer.style.display = 'flex';
+                    showQuestion();
+                }, 3000);
+            })
+            .catch(error => {
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'chatbot-message bot';
+                errorMessage.textContent = 'Sorry, there was an error. Please try again or contact us directly.';
+                messagesContainer.appendChild(errorMessage);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            });
+        }
+    </script>
 </body>
 </html>

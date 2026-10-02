@@ -26,8 +26,10 @@ $flash = getFlash();
         body {
             background-color: #f8f9fa;
         }
+        .btn-primary { background: #FF631E; border: none; }
+        .btn-primary:hover { background: #e55a1a; }
         .sidebar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #FF631E 0%, #201966 100%);
             min-height: 100vh;
             color: white;
         }
@@ -82,8 +84,8 @@ $flash = getFlash();
             <!-- Sidebar -->
             <div class="col-md-3 col-lg-2 sidebar p-0">
                 <div class="p-4 text-center border-bottom border-white-20">
+                    <img src="<?= UPLOAD_URL ?>website/logo.png" alt="Aishley India Journeys" class="mb-2" style="height: 40px; margin-right: 10px;">
                     <h4 class="mb-0">Admin Panel</h4>
-                    <small class="opacity-75">Aishley India Journeys</small>
                 </div>
                 <nav class="nav flex-column mt-3">
                     <a class="nav-link active" href="dashboard.php">

@@ -29,8 +29,10 @@ if (!$tour) {
     <script src="https://cdn.ckeditor.com/ckeditor5/39.0.0/classic/ckeditor.js"></script>
     <style>
         body { background-color: #f8f9fa; }
+        .btn-primary { background: #FF631E; border: none; }
+        .btn-primary:hover { background: #e55a1a; }
         .sidebar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #FF631E 0%, #201966 100%);
             min-height: 100vh;
             color: white;
         }

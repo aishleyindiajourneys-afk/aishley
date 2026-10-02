@@ -21,10 +21,12 @@ $flash = getFlash();
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #f8f9fa; }
+        .navbar-brand img { height: 40px; }
+        .btn-primary { background: #FF631E; border: none; }
+        .btn-primary:hover { background: #e55a1a; }
         .user-sidebar { background: white; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .user-sidebar .nav-link { color: #333; padding: 12px 20px; border-radius: 8px; margin: 5px 10px; }
-        .user-sidebar .nav-link:hover, .user-sidebar .nav-link.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .user-sidebar .nav-link:hover, .user-sidebar .nav-link.active { background: linear-gradient(135deg, #FF631E 0%, #201966 100%); color: white; }
         .user-sidebar .nav-link i { width: 25px; }
         .main-content { padding: 30px; }
         .page-header { background: white; padding: 20px 30px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 30px; }
@@ -34,7 +36,7 @@ $flash = getFlash();
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="<?= SITE_URL ?>">Aishley India Journeys</a>
+            <a class="navbar-brand" href="<?= SITE_URL ?>"><img src="<?= UPLOAD_URL ?>website/logo.png" alt="Aishley India Journeys" style="height: 40px; margin-right: 10px;"><span style="color: #201966; font-weight: 600;">Aishley India Journeys</span></a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
