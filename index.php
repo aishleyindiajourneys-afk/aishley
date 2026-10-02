@@ -10,6 +10,7 @@ $featuredTours = $pdo->query("SELECT t.*, d.name as destination_name FROM tours 
 
 // Get popular destinations
 $popularDestinations = $pdo->query("SELECT * FROM destinations WHERE popular = 'yes' AND status = 'active' ORDER BY created_at DESC LIMIT 6")->fetchAll();
+$enquiryDestinations = $pdo->query("SELECT id, name FROM destinations WHERE status = 'active' ORDER BY name ASC")->fetchAll();
 
 // Get testimonials
 $testimonials = $pdo->query("SELECT * FROM testimonials WHERE featured = 'yes' AND status = 'active' ORDER BY created_at DESC LIMIT 6")->fetchAll();
@@ -19,6 +20,32 @@ $latestBlogs = $pdo->query("SELECT b.*, c.name as category_name FROM blogs b LEF
 
 $pageTitle = "Home";
 $pageDescription = $settings['seo_description'] ?? "Experience the magic of India with Aishley India Journeys. Discover amazing tours, destinations, and create unforgettable memories.";
+
+$heroText = "Experience unforgettable journeys through ancient temples, majestic forts, serene backwaters, and vibrant culture with Aishley India Journeys.";
+$heroSlides = [];
+try {
+    $adminSlides = $pdo->query("SELECT * FROM hero_slides WHERE status = 'active' ORDER BY sort_order ASC, id ASC")->fetchAll();
+    foreach ($adminSlides as $slide) {
+        $heroSlides[] = [
+            'src' => UPLOAD_URL . str_replace(' ', '%20', $slide['image']),
+            'title' => $slide['title'],
+            'text' => $slide['subtitle'] ?: $heroText,
+            'button_text' => $slide['button_text'] ?: 'Explore Tours',
+            'button_link' => $slide['button_link'] ?: 'tours.php'
+        ];
+    }
+} catch (PDOException $e) {
+    $heroSlides = [];
+}
+if (!$heroSlides) {
+    $heroSlides[] = [
+        'src' => 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=1920&q=80',
+        'title' => 'Discover the Magic of India',
+        'text' => $heroText,
+        'button_text' => 'Explore Tours',
+        'button_link' => 'tours.php'
+    ];
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -31,17 +58,25 @@ $pageDescription = $settings['seo_description'] ?? "Experience the magic of Indi
     <style>
         :root { --primary: #FF631E; --secondary: #201966; --light-bg: #EAE9E7; --white: #FEFEFE; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .hero-section {
-            background: linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.5)), url('uploads/gallery/slide 1.png') center/cover;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            min-height: 80vh;
+        .hero-section { position: relative; color: white; }
+        .hero-section .carousel,
+        .hero-section .carousel-inner,
+        .hero-section .carousel-item { min-height: 80vh; }
+        .hero-slide-img { width: 100%; height: 80vh; object-fit: cover; }
+        .hero-overlay { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(0,0,0,0.55), rgba(0,0,0,0.35)); }
+        .hero-caption {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
             display: flex;
             align-items: center;
-            color: white;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: left;
         }
-        .navbar { background: rgba(255,255,255,0.95) !important; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .hero-section .carousel-control-prev,
+        .hero-section .carousel-control-next { width: 6%; z-index: 3; }
+        .hero-section .carousel-indicators { z-index: 3; margin-bottom: 1.5rem; }
+        .site-header { position: sticky; top: 0; z-index: 1030; }
+        .navbar { background: #FEFEFE !important; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .navbar-brand img { height: 40px; }
         .nav-link { color: #333 !important; font-weight: 500; }
         .nav-link:hover { color: var(--primary) !important; }
@@ -49,9 +84,12 @@ $pageDescription = $settings['seo_description'] ?? "Experience the magic of Indi
         .btn-primary:hover { background: #e55a1a; }
         .section-title { position: relative; margin-bottom: 40px; }
         .section-title::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 60px; height: 3px; background: linear-gradient(135deg, var(--primary), var(--secondary)); }
-        .tour-card { border: none; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); transition: transform 0.3s, box-shadow 0.3s; overflow: hidden; }
+        .tour-card { background: #fff; height: 100%; display: flex; flex-direction: column; border: none; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); transition: transform 0.3s, box-shadow 0.3s; overflow: hidden; }
         .tour-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.2); }
-        .tour-card img { height: 250px; object-fit: cover; }
+        .tour-card img { width: 100%; height: 250px; object-fit: cover; }
+        .tour-card .card-body { display: flex; flex-direction: column; flex: 1; }
+        .tour-card-meta { margin-top: auto; }
+        .tour-card-actions .btn { white-space: nowrap; }
         .destination-card { border-radius: 15px; overflow: hidden; position: relative; }
         .destination-card img { height: 300px; object-fit: cover; transition: transform 0.5s; }
         .destination-card:hover img { transform: scale(1.1); }
@@ -200,7 +238,7 @@ $pageDescription = $settings['seo_description'] ?? "Experience the magic of Indi
         .welcome-banner {
             background: linear-gradient(135deg, #FF631E, #201966);
             color: white;
-            padding: 15px 0;
+            padding: 10px 48px 10px 16px;
             text-align: center;
             position: relative;
         }
@@ -228,6 +266,21 @@ $pageDescription = $settings['seo_description'] ?? "Experience the magic of Indi
         .welcome-banner .close-banner:hover {
             opacity: 1;
         }
+        #leadPopup { z-index: 10050; }
+        .modal-backdrop { z-index: 10040 !important; }
+        .lead-popup-dialog { max-width: 520px; }
+        .lead-popup-header {
+            background: linear-gradient(135deg, #FF631E, #201966);
+            color: #fff;
+            border: none;
+            padding: 22px 24px 18px;
+        }
+        .lead-popup-header .btn-close { filter: invert(1); }
+        .lead-popup-header h5 { font-weight: 700; margin-bottom: 4px; }
+        .lead-popup-header p { margin: 0; opacity: 0.9; font-size: 14px; }
+        .lead-popup-body { padding: 24px; }
+        body.modal-open .chatbot-button,
+        body.modal-open .chatbot-window { z-index: 1; }
     </style>
 </head>
 <body>
@@ -235,47 +288,76 @@ $pageDescription = $settings['seo_description'] ?? "Experience the magic of Indi
         <div class="alert alert-<?= $flash['type'] ?> alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x" style="z-index: 9999;"><?= $flash['message'] ?><button class="btn-close" data-bs-dismiss="alert"></button></div>
     <?php endif; ?>
     
-    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
-        <div class="container">
-            <a class="navbar-brand" href="<?= SITE_URL ?>"><img src="<?= UPLOAD_URL ?>website/logo.png" alt="<?= htmlspecialchars($settings['site_name']) ?>" style="height: 40px; margin-right: 10px;"><span style="color: #201966; font-weight: 600;"><?= htmlspecialchars($settings['site_name']) ?></span></a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link active" href="<?= SITE_URL ?>">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="tours.php">Tours</a></li>
-                    <li class="nav-item"><a class="nav-link" href="destinations.php">Destinations</a></li>
-                    <li class="nav-item"><a class="nav-link" href="blogs.php">Blog</a></li>
-                    <li class="nav-item"><a class="nav-link" href="gallery.php">Gallery</a></li>
-                    <li class="nav-item"><a class="nav-link" href="contact.php">Contact</a></li>
-                    <?php if (isLoggedIn()): ?>
-                        <li class="nav-item"><a class="nav-link" href="user/dashboard.php"><i class="fas fa-user me-1"></i>My Account</a></li>
-                    <?php else: ?>
-                        <li class="nav-item"><a class="nav-link" href="login.php"><i class="fas fa-sign-in-alt me-1"></i>Login</a></li>
-                        <li class="nav-item"><a class="nav-link btn btn-primary text-white ms-2 px-4" href="register.php">Register</a></li>
-                    <?php endif; ?>
-                </ul>
+    <header class="site-header">
+        <div class="welcome-banner" id="welcomeBanner">
+            <div class="container">
+                <p>Welcome to Aishley India Journey, talk with our travel experts for instant quote, you can leave your inquiry on <a href="https://wa.me/919876543210" target="_blank">WhatsApp</a> & Call <a href="tel:+919876543210">+91 9876543210</a></p>
             </div>
+            <button class="close-banner" onclick="closeWelcomeBanner()">&times;</button>
         </div>
-    </nav>
-    
-    <!-- Welcome Banner -->
-    <div class="welcome-banner" id="welcomeBanner">
-        <div class="container">
-            <p>Welcome to Aishley India Journey, talk with our travel experts for instant quote, you can leave your inquiry on <a href="https://wa.me/919876543210" target="_blank">WhatsApp</a> & Call <a href="tel:+919876543210">+91 9876543210</a></p>
-        </div>
-        <button class="close-banner" onclick="closeWelcomeBanner()">&times;</button>
-    </div>
-    
-    <section class="hero-section">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-8">
-                    <h1 class="display-4 fw-bold mb-4">Discover the Magic of India</h1>
-                    <p class="lead mb-4">Experience unforgettable journeys through ancient temples, majestic forts, serene backwaters, and vibrant culture with Aishley India Journeys.</p>
-                    <a href="tours.php" class="btn btn-light btn-lg me-3">Explore Tours</a>
-                    <a href="contact.php" class="btn btn-outline-light btn-lg">Plan Your Trip</a>
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container">
+                <a class="navbar-brand" href="<?= SITE_URL ?>"><img src="<?= UPLOAD_URL ?>website/logo.png" alt="<?= htmlspecialchars($settings['site_name']) ?>" style="height: 40px; margin-right: 10px;"><span style="color: #201966; font-weight: 600;"><?= htmlspecialchars($settings['site_name']) ?></span></a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item"><a class="nav-link active" href="<?= SITE_URL ?>">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="tours.php">Tours</a></li>
+                        <li class="nav-item"><a class="nav-link" href="destinations.php">Destinations</a></li>
+                        <li class="nav-item"><a class="nav-link" href="blogs.php">Blog</a></li>
+                        <li class="nav-item"><a class="nav-link" href="gallery.php">Gallery</a></li>
+                        <li class="nav-item"><a class="nav-link" href="contact.php">Contact</a></li>
+                        <?php if (isLoggedIn()): ?>
+                            <li class="nav-item"><a class="nav-link" href="user/dashboard.php"><i class="fas fa-user me-1"></i>My Account</a></li>
+                        <?php else: ?>
+                            <li class="nav-item"><a class="nav-link" href="login.php"><i class="fas fa-sign-in-alt me-1"></i>Login</a></li>
+                            <li class="nav-item"><a class="nav-link btn btn-primary text-white ms-2 px-4" href="register.php">Register</a></li>
+                        <?php endif; ?>
+                    </ul>
                 </div>
             </div>
+        </nav>
+    </header>
+    
+    <section class="hero-section">
+        <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="5500">
+            <?php if (count($heroSlides) > 1): ?>
+                <div class="carousel-indicators">
+                    <?php foreach ($heroSlides as $i => $slide): ?>
+                        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="<?= $i ?>" class="<?= $i === 0 ? 'active' : '' ?>" <?= $i === 0 ? 'aria-current="true"' : '' ?> aria-label="Slide <?= $i + 1 ?>"></button>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+            <div class="carousel-inner">
+                <?php foreach ($heroSlides as $i => $slide): ?>
+                    <div class="carousel-item <?= $i === 0 ? 'active' : '' ?>">
+                        <img src="<?= htmlspecialchars($slide['src']) ?>" class="hero-slide-img" alt="<?= htmlspecialchars($slide['title']) ?>">
+                        <div class="hero-overlay"></div>
+                        <div class="hero-caption">
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-lg-8">
+                                        <h1 class="display-4 fw-bold mb-4"><?= htmlspecialchars($slide['title']) ?></h1>
+                                        <p class="lead mb-4"><?= htmlspecialchars($slide['text']) ?></p>
+                                        <a href="<?= htmlspecialchars($slide['button_link'] ?? 'tours.php') ?>" class="btn btn-light btn-lg me-3"><?= htmlspecialchars($slide['button_text'] ?? 'Explore Tours') ?></a>
+                                        <a href="contact.php" class="btn btn-outline-light btn-lg">Plan Your Trip</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            <?php if (count($heroSlides) > 1): ?>
+                <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            <?php endif; ?>
         </div>
     </section>
     
@@ -299,18 +381,18 @@ $pageDescription = $settings['seo_description'] ?? "Experience the magic of Indi
                                     </div>
                                     <h5 class="card-title"><?= htmlspecialchars($tour['title']) ?></h5>
                                     <p class="card-text text-muted small"><?= truncate($tour['overview'], 80) ?></p>
-                                    <div class="d-flex justify-content-between align-items-center mt-3">
-                                        <div>
+                                    <div class="tour-card-meta mt-3">
+                                        <div class="tour-card-price mb-2">
                                             <?php if ($tour['discount_price']): ?>
-                                                <span class="text-decoration-line-through text-muted small me-2"><?= formatPrice($tour['price']) ?></span>
+                                                <span class="text-decoration-line-through text-muted small d-block"><?= formatPrice($tour['price']) ?></span>
                                                 <span class="fw-bold text-primary"><?= formatPrice($tour['discount_price']) ?></span>
                                             <?php else: ?>
                                                 <span class="fw-bold text-primary"><?= formatPrice($tour['price']) ?></span>
                                             <?php endif; ?>
                                         </div>
-                                        <div class="btn-group">
-                                            <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $settings['contact_phone'] ?? '') ?>?text=<?= urlencode('Hi, I am interested in the tour: ' . $tour['title']) ?>" target="_blank" class="btn btn-sm btn-success"><i class="fab fa-whatsapp me-1"></i>WhatsApp</a>
-                                            <a href="tour-details.php?slug=<?= $tour['slug'] ?>" class="btn btn-sm btn-outline-primary">View Details</a>
+                                        <div class="tour-card-actions d-flex gap-2">
+                                            <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $settings['contact_phone'] ?? '') ?>?text=<?= urlencode('Hi, I am interested in the tour: ' . $tour['title']) ?>" target="_blank" class="btn btn-sm btn-success flex-fill"><i class="fab fa-whatsapp me-1"></i>WhatsApp</a>
+                                            <a href="tour-details.php?slug=<?= $tour['slug'] ?>" class="btn btn-sm btn-outline-primary flex-fill">View Details</a>
                                         </div>
                                     </div>
                                 </div>
@@ -332,6 +414,7 @@ $pageDescription = $settings['seo_description'] ?? "Experience the magic of Indi
                 <div class="row">
                     <?php foreach ($popularDestinations as $dest): ?>
                         <div class="col-md-4 mb-4">
+                            <a href="tours.php?destination=<?= (int)$dest['id'] ?>" class="text-decoration-none">
                             <div class="destination-card">
                                 <?php if ($dest['image']): ?>
                                     <img src="<?= UPLOAD_URL . $dest['image'] ?>" alt="<?= htmlspecialchars($dest['name']) ?>">
@@ -345,6 +428,7 @@ $pageDescription = $settings['seo_description'] ?? "Experience the magic of Indi
                                     </div>
                                 </div>
                             </div>
+                            </a>
                         </div>
                     <?php endforeach; ?>
                 </div>
@@ -537,6 +621,65 @@ $pageDescription = $settings['seo_description'] ?? "Experience the magic of Indi
     
     <?php include 'includes/footer.php'; ?>
     
+    <div class="modal fade" id="leadPopup" tabindex="-1" aria-labelledby="leadPopupTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered lead-popup-dialog">
+            <div class="modal-content border-0 overflow-hidden" style="border-radius: 16px;">
+                <div class="modal-header lead-popup-header">
+                    <div>
+                        <h5 class="modal-title" id="leadPopupTitle">Plan Your India Trip</h5>
+                        <p>Share your details and our travel expert will send you a custom quote.</p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body lead-popup-body">
+                    <div id="leadPopupAlert" class="alert d-none mb-3" role="alert"></div>
+                    <form id="leadPopupForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Name *</label>
+                                <input type="text" class="form-control" name="name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Phone *</label>
+                                <input type="tel" class="form-control" name="phone" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email *</label>
+                            <input type="email" class="form-control" name="email" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Preferred destination</label>
+                                <select class="form-select" name="destination">
+                                    <option value="">Select destination</option>
+                                    <?php foreach ($enquiryDestinations as $destination): ?>
+                                        <option value="<?= htmlspecialchars($destination['name']) ?>"><?= htmlspecialchars($destination['name']) ?></option>
+                                    <?php endforeach; ?>
+                                    <option value="Not sure / Multiple">Not sure / Multiple</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Travel month</label>
+                                <input type="text" class="form-control" name="travel_dates" placeholder="e.g. December 2026">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Message</label>
+                            <textarea class="form-control" name="notes" rows="2" placeholder="Tell us about your trip"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100" id="leadPopupSubmit">
+                            <i class="fas fa-paper-plane me-2"></i>Get a Free Quote
+                        </button>
+                        <a class="btn btn-success w-100 mt-2" href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $settings['contact_phone'] ?? '919876543210') ?>?text=<?= urlencode('Hi, I want a custom India tour quote.') ?>" target="_blank">
+                            <i class="fab fa-whatsapp me-2"></i>Chat on WhatsApp
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- AI Chatbot -->
     <div class="chatbot-button" onclick="toggleChatbot()">
         <i class="fas fa-headset"></i>
@@ -562,6 +705,64 @@ $pageDescription = $settings['seo_description'] ?? "Experience the magic of Indi
         function closeWelcomeBanner() {
             document.getElementById('welcomeBanner').style.display = 'none';
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const leadModalEl = document.getElementById('leadPopup');
+            if (!leadModalEl || sessionStorage.getItem('aishley_lead_popup_shown')) {
+                return;
+            }
+            const leadModal = new bootstrap.Modal(leadModalEl);
+            setTimeout(function() {
+                leadModal.show();
+                sessionStorage.setItem('aishley_lead_popup_shown', '1');
+            }, 1200);
+
+            const form = document.getElementById('leadPopupForm');
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const submitBtn = document.getElementById('leadPopupSubmit');
+                const alertBox = document.getElementById('leadPopupAlert');
+                const data = {
+                    name: form.name.value.trim(),
+                    email: form.email.value.trim(),
+                    phone: form.phone.value.trim(),
+                    subject: 'Homepage Lead',
+                    message: form.notes.value.trim() || ('Homepage lead enquiry. Destination: ' + (form.destination.value.trim() || 'Not specified') + '. Travel month: ' + (form.travel_dates.value.trim() || 'Flexible') + '.')
+                };
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending...';
+                fetch('controllers/EnquiryController.php?action=create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: new URLSearchParams(data)
+                })
+                .then(r => r.json())
+                .then(function(res) {
+                    alertBox.classList.remove('d-none', 'alert-danger', 'alert-success');
+                    if (res.success) {
+                        alertBox.classList.add('alert-success');
+                        alertBox.textContent = 'Thank you! Our travel expert will contact you soon.';
+                        form.reset();
+                        setTimeout(function() { leadModal.hide(); }, 1800);
+                    } else {
+                        alertBox.classList.add('alert-danger');
+                        alertBox.textContent = res.message || 'Could not send your request. Please try again.';
+                    }
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Get a Free Quote';
+                })
+                .catch(function() {
+                    alertBox.classList.remove('d-none', 'alert-success');
+                    alertBox.classList.add('alert-danger');
+                    alertBox.textContent = 'Could not send your request. Please try again.';
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Get a Free Quote';
+                });
+            });
+        });
         
         let currentStep = 0;
         let enquiryData = {

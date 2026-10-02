@@ -26,38 +26,52 @@ function handleCreateEnquiry() {
         redirect(SITE_URL);
     }
     
-    $name = sanitize($_POST['name']);
-    $email = sanitize($_POST['email']);
-    $phone = sanitize($_POST['phone']);
+    ob_start();
+    
+    $name = sanitize($_POST['name'] ?? '');
+    $email = sanitize($_POST['email'] ?? '');
+    $phone = sanitize($_POST['phone'] ?? '');
     $tourId = $_POST['tour_id'] ?? null;
     $subject = sanitize($_POST['subject'] ?? '');
-    $message = sanitize($_POST['message']);
-    
-    // Check if AJAX request
-    $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
-    
-    // Validation
-    if (empty($name) || empty($email) || empty($phone) || empty($message)) {
-        if ($isAjax) {
-            header('Content-Type: application/json');
-            echo json_encode(['success' => false, 'message' => 'Please fill all required fields']);
-            exit;
+    $destination = sanitize($_POST['destination'] ?? '');
+    $message = sanitize($_POST['message'] ?? '');
+    if ($destination !== '') {
+        $message = trim("Preferred destination: $destination\n" . $message);
+        if ($subject === '') {
+            $subject = 'Enquiry for ' . $destination;
         }
-        setFlash('error', 'Please fill all required fields');
-        redirect($_SERVER['HTTP_REFERER'] ?? SITE_URL);
+    }
+    if ($message === '') {
+        $message = 'Lead enquiry from website';
     }
     
-    // Insert enquiry
+    $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
+    
+    $respond = function ($success, $text) use ($isAjax) {
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
+        if ($isAjax) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => $success, 'message' => $text]);
+            exit;
+        }
+        setFlash($success ? 'success' : 'error', $text);
+        redirect($_SERVER['HTTP_REFERER'] ?? SITE_URL);
+    };
+    
+    if (empty($name) || empty($email) || empty($phone)) {
+        $respond(false, 'Please fill all required fields');
+    }
+    
     $sql = "INSERT INTO enquiries (name, email, phone, tour_id, subject, message, ip_address) VALUES (?, ?, ?, ?, ?, ?, ?)";
     $stmt = $pdo->prepare($sql);
     
     try {
-        $stmt->execute([$name, $email, $phone, $tourId, $subject, $message, $_SERVER['REMOTE_ADDR']]);
+        $stmt->execute([$name, $email, $phone, $tourId ?: null, $subject, $message, $_SERVER['REMOTE_ADDR'] ?? '']);
         
-        // Send email notification to admin
         $settings = getSettings();
         $adminEmail = $settings['contact_email'] ?? ADMIN_EMAIL;
-        
         $emailSubject = "New Enquiry from " . $name;
         $emailBody = "
             <h2>New Enquiry Received</h2>
@@ -68,24 +82,14 @@ function handleCreateEnquiry() {
             <p><strong>Message:</strong></p>
             <p>" . nl2br($message) . "</p>
         ";
-        
-        sendEmail($adminEmail, $emailSubject, $emailBody);
-        
-        if ($isAjax) {
-            header('Content-Type: application/json');
-            echo json_encode(['success' => true, 'message' => 'Enquiry submitted successfully']);
-            exit;
+        try {
+            @sendEmail($adminEmail, $emailSubject, $emailBody);
+        } catch (Throwable $e) {
+            // Enquiry is already saved; skip mail failures
         }
         
-        setFlash('success', 'Thank you for your enquiry! We will contact you soon.');
+        $respond(true, 'Thank you for your enquiry! We will contact you soon.');
     } catch (PDOException $e) {
-        if ($isAjax) {
-            header('Content-Type: application/json');
-            echo json_encode(['success' => false, 'message' => 'Failed to submit enquiry']);
-            exit;
-        }
-        setFlash('error', 'Failed to submit enquiry. Please try again.');
+        $respond(false, 'Failed to submit enquiry. Please try again.');
     }
-    
-    redirect($_SERVER['HTTP_REFERER'] ?? SITE_URL);
 }

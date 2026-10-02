@@ -74,7 +74,14 @@ function handleAdminLogin($auth) {
  * Handle Admin Logout
  */
 function handleAdminLogout() {
+    $_SESSION = [];
+    if (ini_get('session.use_cookies')) {
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+    }
     session_destroy();
+    session_name(SESSION_NAME);
+    session_start();
     setFlash('success', 'Logged out successfully');
     redirect(SITE_URL . '/admin/login.php');
 }
@@ -151,7 +158,14 @@ function handleUserLogin($auth) {
  * Handle User Logout
  */
 function handleUserLogout() {
+    $_SESSION = [];
+    if (ini_get('session.use_cookies')) {
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+    }
     session_destroy();
+    session_name(SESSION_NAME);
+    session_start();
     setFlash('success', 'Logged out successfully');
     redirect(SITE_URL . '/login.php');
 }

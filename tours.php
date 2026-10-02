@@ -64,9 +64,12 @@ $pageDescription = "Explore our amazing tour packages across India. From golden 
             color: white;
             padding: 100px 0;
         }
-        .tour-card { border: none; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); transition: transform 0.3s, box-shadow 0.3s; overflow: hidden; }
+        .tour-card { background: #fff; height: 100%; display: flex; flex-direction: column; border: none; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); transition: transform 0.3s, box-shadow 0.3s; overflow: hidden; }
         .tour-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.2); }
-        .tour-card img { height: 250px; object-fit: cover; }
+        .tour-card img { width: 100%; height: 250px; object-fit: cover; }
+        .tour-card .card-body { display: flex; flex-direction: column; flex: 1; }
+        .tour-card-meta { margin-top: auto; }
+        .tour-card-actions .btn { white-space: nowrap; }
         .footer { background: #201966; color: #FEFEFE; padding: 60px 0 30px; }
         .footer h5 { color: #FEFEFE; font-weight: 600; margin-bottom: 20px; }
         .footer a { color: #EAE9E7; text-decoration: none; }
@@ -81,7 +84,7 @@ $pageDescription = "Explore our amazing tour packages across India. From golden 
         <div class="alert alert-<?= $flash['type'] ?> alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x" style="z-index: 9999;"><?= $flash['message'] ?><button class="btn-close" data-bs-dismiss="alert"></button></div>
     <?php endif; ?>
     
-    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
         <div class="container">
             <a class="navbar-brand" href="<?= SITE_URL ?>"><img src="<?= UPLOAD_URL ?>website/logo.png" alt="<?= htmlspecialchars($settings['site_name']) ?>" style="height: 40px; margin-right: 10px;"><span style="color: #201966; font-weight: 600;"><?= htmlspecialchars($settings['site_name']) ?></span></a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
@@ -144,18 +147,18 @@ $pageDescription = "Explore our amazing tour packages across India. From golden 
                                             </div>
                                             <h5 class="card-title"><?= htmlspecialchars($tour['title']) ?></h5>
                                             <p class="card-text text-muted small"><?= truncate($tour['overview'], 80) ?></p>
-                                            <div class="d-flex justify-content-between align-items-center mt-3">
-                                                <div>
+                                            <div class="tour-card-meta mt-3">
+                                                <div class="tour-card-price mb-2">
                                                     <?php if ($tour['discount_price']): ?>
-                                                        <span class="text-decoration-line-through text-muted small me-2"><?= formatPrice($tour['price']) ?></span>
+                                                        <span class="text-decoration-line-through text-muted small d-block"><?= formatPrice($tour['price']) ?></span>
                                                         <span class="fw-bold text-primary"><?= formatPrice($tour['discount_price']) ?></span>
                                                     <?php else: ?>
                                                         <span class="fw-bold text-primary"><?= formatPrice($tour['price']) ?></span>
                                                     <?php endif; ?>
                                                 </div>
-                                                <div class="btn-group">
-                                                    <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $settings['contact_phone'] ?? '') ?>?text=<?= urlencode('Hi, I am interested in the tour: ' . $tour['title']) ?>" target="_blank" class="btn btn-sm btn-success"><i class="fab fa-whatsapp me-1"></i>WhatsApp</a>
-                                                    <a href="tour-details.php?slug=<?= $tour['slug'] ?>" class="btn btn-sm btn-outline-primary">View Details</a>
+                                                <div class="tour-card-actions d-flex gap-2">
+                                                    <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $settings['contact_phone'] ?? '') ?>?text=<?= urlencode('Hi, I am interested in the tour: ' . $tour['title']) ?>" target="_blank" class="btn btn-sm btn-success flex-fill"><i class="fab fa-whatsapp me-1"></i>WhatsApp</a>
+                                                    <a href="tour-details.php?slug=<?= $tour['slug'] ?>" class="btn btn-sm btn-outline-primary flex-fill">View Details</a>
                                                 </div>
                                             </div>
                                         </div>

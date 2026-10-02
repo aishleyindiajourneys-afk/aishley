@@ -39,10 +39,21 @@
             <div class="col-md-3 mb-4">
                 <h5>Popular Tours</h5>
                 <ul class="list-unstyled small">
-                    <li><a href="tour-details.php?slug=golden-triangle-tour" class="text-muted">Golden Triangle Tour</a></li>
-                    <li><a href="tour-details.php?slug=kerala-backwaters" class="text-muted">Kerala Backwaters</a></li>
-                    <li><a href="tour-details.php?slug=rajasthan-heritage" class="text-muted">Rajasthan Heritage</a></li>
-                    <li><a href="tour-details.php?slug=goa-beach-vacation" class="text-muted">Goa Beach Vacation</a></li>
+                    <?php
+                    $footerTours = [];
+                    if (isset($pdo)) {
+                        try {
+                            $footerTours = $pdo->query("SELECT title, slug FROM tours WHERE status = 'active' ORDER BY featured DESC, created_at DESC LIMIT 4")->fetchAll();
+                        } catch (PDOException $e) {
+                            $footerTours = [];
+                        }
+                    }
+                    if ($footerTours):
+                        foreach ($footerTours as $footerTour): ?>
+                    <li><a href="<?= htmlspecialchars(SITE_URL . '/tour-details.php?slug=' . $footerTour['slug']) ?>" class="text-muted"><?= htmlspecialchars($footerTour['title']) ?></a></li>
+                    <?php endforeach; else: ?>
+                    <li><a href="<?= SITE_URL ?>/tours.php" class="text-muted">View all tours</a></li>
+                    <?php endif; ?>
                 </ul>
                 <div class="mt-3">
                     <h6 class="text-muted small mb-2">Payment Methods</h6>

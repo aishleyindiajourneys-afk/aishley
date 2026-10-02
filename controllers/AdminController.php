@@ -63,6 +63,15 @@ switch ($action) {
     case 'gallery-delete':
         handleGalleryDelete($admin);
         break;
+    case 'slider-create':
+        handleSliderCreate($admin);
+        break;
+    case 'slider-update':
+        handleSliderUpdate($admin);
+        break;
+    case 'slider-delete':
+        handleSliderDelete($admin);
+        break;
     case 'testimonial-create':
         handleTestimonialCreate($admin);
         break;
@@ -543,6 +552,11 @@ function handleGalleryCreate($admin) {
         }
     }
     
+    if (empty($data['image'])) {
+        setFlash('error', 'Please upload a gallery image');
+        redirect(SITE_URL . '/admin/gallery.php');
+    }
+    
     if ($admin->createGalleryItem($data)) {
         setFlash('success', 'Gallery item added successfully');
     } else {
@@ -559,6 +573,10 @@ function handleGalleryUpdate($admin) {
     
     $id = $_POST['id'];
     $existingItem = $admin->getGalleryById($id);
+    if (!$existingItem) {
+        setFlash('error', 'Gallery item not found');
+        redirect(SITE_URL . '/admin/gallery.php');
+    }
     
     $data = [
         'title' => sanitize($_POST['title']),
@@ -605,6 +623,101 @@ function handleGalleryDelete($admin) {
     }
     
     redirect(SITE_URL . '/admin/gallery.php');
+}
+
+// ==================== HERO SLIDER HANDLERS ====================
+
+function handleSliderCreate($admin) {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        redirect(SITE_URL . '/admin/slider.php');
+    }
+    
+    if (!isset($_FILES['image']) || $_FILES['image']['error'] !== 0) {
+        setFlash('error', 'Please upload a slider image');
+        redirect(SITE_URL . '/admin/slider.php');
+    }
+    
+    $uploadResult = uploadFile($_FILES['image'], UPLOAD_PATH . 'slider/');
+    if (!$uploadResult['success']) {
+        setFlash('error', $uploadResult['message'] ?? 'Failed to upload image');
+        redirect(SITE_URL . '/admin/slider.php');
+    }
+    
+    $data = [
+        'title' => sanitize($_POST['title'] ?? ''),
+        'subtitle' => sanitize($_POST['subtitle'] ?? ''),
+        'image' => 'slider/' . $uploadResult['filename'],
+        'button_text' => sanitize($_POST['button_text'] ?? 'Explore Tours') ?: 'Explore Tours',
+        'button_link' => sanitize($_POST['button_link'] ?? 'tours.php') ?: 'tours.php',
+        'sort_order' => (int)($_POST['sort_order'] ?? 0),
+        'status' => ($_POST['status'] ?? 'active') === 'inactive' ? 'inactive' : 'active'
+    ];
+    
+    if ($admin->createHeroSlide($data)) {
+        setFlash('success', 'Slider image added successfully');
+    } else {
+        setFlash('error', 'Failed to add slider image');
+    }
+    
+    redirect(SITE_URL . '/admin/slider.php');
+}
+
+function handleSliderUpdate($admin) {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        redirect(SITE_URL . '/admin/slider.php');
+    }
+    
+    $id = (int)($_POST['id'] ?? 0);
+    $existing = $admin->getHeroSlideById($id);
+    if (!$existing) {
+        setFlash('error', 'Slider image not found');
+        redirect(SITE_URL . '/admin/slider.php');
+    }
+    
+    $data = [
+        'title' => sanitize($_POST['title'] ?? ''),
+        'subtitle' => sanitize($_POST['subtitle'] ?? ''),
+        'image' => $existing['image'],
+        'button_text' => sanitize($_POST['button_text'] ?? 'Explore Tours') ?: 'Explore Tours',
+        'button_link' => sanitize($_POST['button_link'] ?? 'tours.php') ?: 'tours.php',
+        'sort_order' => (int)($_POST['sort_order'] ?? 0),
+        'status' => ($_POST['status'] ?? 'active') === 'inactive' ? 'inactive' : 'active'
+    ];
+    
+    if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
+        $uploadResult = uploadFile($_FILES['image'], UPLOAD_PATH . 'slider/');
+        if ($uploadResult['success']) {
+            if (!empty($existing['image']) && strpos($existing['image'], 'slider/') === 0) {
+                deleteFile(UPLOAD_PATH . $existing['image']);
+            }
+            $data['image'] = 'slider/' . $uploadResult['filename'];
+        }
+    }
+    
+    if ($admin->updateHeroSlide($id, $data)) {
+        setFlash('success', 'Slider image updated successfully');
+    } else {
+        setFlash('error', 'Failed to update slider image');
+    }
+    
+    redirect(SITE_URL . '/admin/slider.php');
+}
+
+function handleSliderDelete($admin) {
+    $id = $_GET['id'] ?? 0;
+    $item = $admin->getHeroSlideById($id);
+    
+    if ($item) {
+        if (!empty($item['image']) && strpos($item['image'], 'slider/') === 0) {
+            deleteFile(UPLOAD_PATH . $item['image']);
+        }
+        $admin->deleteHeroSlide($id);
+        setFlash('success', 'Slider image deleted successfully');
+    } else {
+        setFlash('error', 'Slider image not found');
+    }
+    
+    redirect(SITE_URL . '/admin/slider.php');
 }
 
 // ==================== TESTIMONIAL HANDLERS ====================

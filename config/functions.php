@@ -66,6 +66,9 @@ function getFlash() {
     if (isset($_SESSION['flash'])) {
         $flash = $_SESSION['flash'];
         unset($_SESSION['flash']);
+        if (($flash['type'] ?? '') === 'error') {
+            $flash['type'] = 'danger';
+        }
         return $flash;
     }
     return null;
@@ -195,7 +198,10 @@ function generateMetaTags($title, $description, $keywords = '') {
     $meta .= '<meta property="og:title" content="' . htmlspecialchars($title) . '">' . "\n";
     $meta .= '<meta property="og:description" content="' . htmlspecialchars($description) . '">' . "\n";
     $meta .= '<meta property="og:type" content="website">' . "\n";
-    $meta .= '<meta property="og:url" content="' . SITE_URL . $_SERVER['REQUEST_URI'] . '">' . "\n";
+    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+    $uri = $_SERVER['REQUEST_URI'] ?? '/';
+    $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+    $meta .= '<meta property="og:url" content="' . htmlspecialchars(($https ? 'https' : 'http') . '://' . $host . $uri) . '">' . "\n";
     
     return $meta;
 }

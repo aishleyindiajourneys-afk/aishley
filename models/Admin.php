@@ -312,6 +312,12 @@ class Admin {
         return $stmt->fetch()['count'];
     }
     
+    public function getGalleryById($id) {
+        $stmt = $this->pdo->prepare("SELECT * FROM gallery WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch();
+    }
+    
     public function createGalleryItem($data) {
         $sql = "INSERT INTO gallery (title, image, category, description, status, sort_order) VALUES (?, ?, ?, ?, ?, ?)";
         
@@ -343,6 +349,58 @@ class Admin {
     
     public function deleteGalleryItem($id) {
         $stmt = $this->pdo->prepare("DELETE FROM gallery WHERE id = ?");
+        return $stmt->execute([$id]);
+    }
+    
+    // ==================== HERO SLIDER ====================
+    
+    public function getAllHeroSlides() {
+        $stmt = $this->pdo->query("SELECT * FROM hero_slides ORDER BY sort_order ASC, id ASC");
+        return $stmt->fetchAll();
+    }
+    
+    public function getActiveHeroSlides() {
+        $stmt = $this->pdo->query("SELECT * FROM hero_slides WHERE status = 'active' ORDER BY sort_order ASC, id ASC");
+        return $stmt->fetchAll();
+    }
+    
+    public function getHeroSlideById($id) {
+        $stmt = $this->pdo->prepare("SELECT * FROM hero_slides WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch();
+    }
+    
+    public function createHeroSlide($data) {
+        $sql = "INSERT INTO hero_slides (title, subtitle, image, button_text, button_link, sort_order, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([
+            $data['title'],
+            $data['subtitle'],
+            $data['image'],
+            $data['button_text'],
+            $data['button_link'],
+            $data['sort_order'],
+            $data['status']
+        ]);
+    }
+    
+    public function updateHeroSlide($id, $data) {
+        $sql = "UPDATE hero_slides SET title = ?, subtitle = ?, image = ?, button_text = ?, button_link = ?, sort_order = ?, status = ? WHERE id = ?";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([
+            $data['title'],
+            $data['subtitle'],
+            $data['image'],
+            $data['button_text'],
+            $data['button_link'],
+            $data['sort_order'],
+            $data['status'],
+            $id
+        ]);
+    }
+    
+    public function deleteHeroSlide($id) {
+        $stmt = $this->pdo->prepare("DELETE FROM hero_slides WHERE id = ?");
         return $stmt->execute([$id]);
     }
     
@@ -579,14 +637,92 @@ class Admin {
     public function getDashboardStats() {
         $stats = [];
         
-        $stats['total_tours'] = $this->pdo->query("SELECT COUNT(*) as count FROM tours")->fetch()['count'];
-        $stats['total_destinations'] = $this->pdo->query("SELECT COUNT(*) as count FROM destinations")->fetch()['count'];
-        $stats['total_blogs'] = $this->pdo->query("SELECT COUNT(*) as count FROM blogs")->fetch()['count'];
-        $stats['total_enquiries'] = $this->pdo->query("SELECT COUNT(*) as count FROM enquiries")->fetch()['count'];
-        $stats['new_enquiries'] = $this->pdo->query("SELECT COUNT(*) as count FROM enquiries WHERE status = 'new'")->fetch()['count'];
-        $stats['total_users'] = $this->pdo->query("SELECT COUNT(*) as count FROM users")->fetch()['count'];
+        $stats['total_tours'] = (int)$this->pdo->query("SELECT COUNT(*) as count FROM tours")->fetch()['count'];
+        $stats['active_tours'] = (int)$this->pdo->query("SELECT COUNT(*) as count FROM tours WHERE status = 'active'")->fetch()['count'];
+        $stats['total_destinations'] = (int)$this->pdo->query("SELECT COUNT(*) as count FROM destinations")->fetch()['count'];
+        $stats['total_blogs'] = (int)$this->pdo->query("SELECT COUNT(*) as count FROM blogs")->fetch()['count'];
+        $stats['total_enquiries'] = (int)$this->pdo->query("SELECT COUNT(*) as count FROM enquiries")->fetch()['count'];
+        $stats['new_enquiries'] = (int)$this->pdo->query("SELECT COUNT(*) as count FROM enquiries WHERE status = 'new'")->fetch()['count'];
+        $stats['contacted_enquiries'] = (int)$this->pdo->query("SELECT COUNT(*) as count FROM enquiries WHERE status = 'contacted'")->fetch()['count'];
+        $stats['closed_enquiries'] = (int)$this->pdo->query("SELECT COUNT(*) as count FROM enquiries WHERE status = 'closed'")->fetch()['count'];
+        $stats['today_enquiries'] = (int)$this->pdo->query("SELECT COUNT(*) as count FROM enquiries WHERE DATE(created_at) = CURDATE()")->fetch()['count'];
+        $stats['week_enquiries'] = (int)$this->pdo->query("SELECT COUNT(*) as count FROM enquiries WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)")->fetch()['count'];
+        $stats['homepage_leads'] = (int)$this->pdo->query("SELECT COUNT(*) as count FROM enquiries WHERE subject = 'Homepage Lead'")->fetch()['count'];
+        $stats['total_users'] = (int)$this->pdo->query("SELECT COUNT(*) as count FROM users")->fetch()['count'];
+        $stats['total_favorites'] = (int)$this->pdo->query("SELECT COUNT(*) as count FROM user_favorites")->fetch()['count'];
         
         return $stats;
+    }
+    
+    public function getEnquiryTrend($days = 14) {
+        $stmt = $this->pdo->prepare("
+            SELECT DATE(created_at) as day, COUNT(*) as total
+            FROM enquiries
+            WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
+            GROUP BY DATE(created_at)
+            ORDER BY day ASC
+        ");
+        $stmt->execute([$days - 1]);
+        $rows = $stmt->fetchAll();
+        $byDay = [];
+        foreach ($rows as $row) {
+            $byDay[$row['day']] = (int)$row['total'];
+        }
+        
+        $trend = [];
+        for ($i = $days - 1; $i >= 0; $i--) {
+            $day = date('Y-m-d', strtotime("-{$i} day"));
+            $trend[] = [
+                'day' => $day,
+                'label' => date('d M', strtotime($day)),
+                'total' => $byDay[$day] ?? 0
+            ];
+        }
+        return $trend;
+    }
+    
+    public function getLeadSources() {
+        $stmt = $this->pdo->query("
+            SELECT
+                CASE
+                    WHEN subject = 'Homepage Lead' THEN 'Homepage popup'
+                    WHEN tour_id IS NOT NULL THEN 'Tour page'
+                    ELSE 'Contact / other'
+                END AS source,
+                COUNT(*) AS total
+            FROM enquiries
+            GROUP BY
+                CASE
+                    WHEN subject = 'Homepage Lead' THEN 'Homepage popup'
+                    WHEN tour_id IS NOT NULL THEN 'Tour page'
+                    ELSE 'Contact / other'
+                END
+            ORDER BY total DESC
+        ");
+        return $stmt->fetchAll();
+    }
+    
+    public function getTopEnquiryTours($limit = 5) {
+        $stmt = $this->pdo->prepare("
+            SELECT t.title, COUNT(e.id) AS total
+            FROM enquiries e
+            INNER JOIN tours t ON e.tour_id = t.id
+            GROUP BY t.id, t.title
+            ORDER BY total DESC
+            LIMIT ?
+        ");
+        $stmt->execute([$limit]);
+        return $stmt->fetchAll();
+    }
+    
+    public function getContentHealth() {
+        return [
+            'tours_without_image' => (int)$this->pdo->query("SELECT COUNT(*) as count FROM tours WHERE featured_image IS NULL OR featured_image = ''")->fetch()['count'],
+            'inactive_tours' => (int)$this->pdo->query("SELECT COUNT(*) as count FROM tours WHERE status = 'inactive'")->fetch()['count'],
+            'destinations_without_image' => (int)$this->pdo->query("SELECT COUNT(*) as count FROM destinations WHERE (image IS NULL OR image = '') AND (banner_image IS NULL OR banner_image = '')")->fetch()['count'],
+            'unpublished_blogs' => (int)$this->pdo->query("SELECT COUNT(*) as count FROM blogs WHERE status != 'published'")->fetch()['count'],
+            'featured_tours' => (int)$this->pdo->query("SELECT COUNT(*) as count FROM tours WHERE featured = 'yes' AND status = 'active'")->fetch()['count']
+        ];
     }
     
     public function getRecentEnquiries($limit = 5) {

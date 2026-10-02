@@ -46,6 +46,7 @@ $flash = getFlash();
                     <a class="nav-link" href="blogs.php"><i class="fas fa-blog"></i> Blogs</a>
                     <a class="nav-link" href="pages.php"><i class="fas fa-file-alt"></i> Pages</a>
                     <a class="nav-link" href="gallery.php"><i class="fas fa-images"></i> Gallery</a>
+                    <a class="nav-link" href="slider.php"><i class="fas fa-sliders-h"></i> Hero Slider</a>
                     <a class="nav-link" href="testimonials.php"><i class="fas fa-star"></i> Testimonials</a>
                     <a class="nav-link active" href="faqs.php"><i class="fas fa-question-circle"></i> FAQs</a>
                     <a class="nav-link" href="enquiries.php"><i class="fas fa-envelope"></i> Enquiries</a>

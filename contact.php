@@ -4,6 +4,7 @@ require_once 'config/functions.php';
 
 $settings = getSettings();
 $flash = getFlash();
+$enquiryDestinations = $pdo->query("SELECT id, name FROM destinations WHERE status = 'active' ORDER BY name ASC")->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -49,7 +50,7 @@ $flash = getFlash();
         <div class="alert alert-<?= $flash['type'] ?> alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x" style="z-index: 9999;"><?= $flash['message'] ?><button class="btn-close" data-bs-dismiss="alert"></button></div>
     <?php endif; ?>
     
-    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
         <div class="container">
             <a class="navbar-brand" href="<?= SITE_URL ?>"><img src="<?= UPLOAD_URL ?>website/logo.png" alt="<?= htmlspecialchars($settings['site_name']) ?>" style="height: 40px; margin-right: 10px;"><span style="color: #201966; font-weight: 600;"><?= htmlspecialchars($settings['site_name']) ?></span></a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
@@ -147,9 +148,19 @@ $flash = getFlash();
                                     <input type="text" class="form-control" name="phone" required>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label">Subject</label>
-                                    <input type="text" class="form-control" name="subject">
+                                    <label class="form-label">Preferred destination</label>
+                                    <select class="form-select" name="destination">
+                                        <option value="">Select destination</option>
+                                        <?php foreach ($enquiryDestinations as $destination): ?>
+                                            <option value="<?= htmlspecialchars($destination['name']) ?>"><?= htmlspecialchars($destination['name']) ?></option>
+                                        <?php endforeach; ?>
+                                        <option value="Not sure / Multiple">Not sure / Multiple</option>
+                                    </select>
                                 </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Subject</label>
+                                <input type="text" class="form-control" name="subject">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Message *</label>
