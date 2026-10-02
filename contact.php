@@ -163,32 +163,7 @@ $flash = getFlash();
         </div>
     </section>
     
-    <footer class="footer">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4 mb-4">
-                    <h5><?= htmlspecialchars($settings['site_name']) ?></h5>
-                    <p class="text-muted"><?= htmlspecialchars($settings['site_tagline']) ?></p>
-                </div>
-                <div class="col-md-4 mb-4">
-                    <h5>Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="<?= SITE_URL ?>">Home</a></li>
-                        <li><a href="tours.php">Tours</a></li>
-                        <li><a href="destinations.php">Destinations</a></li>
-                        <li><a href="contact.php">Contact</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4 mb-4">
-                    <h5>Contact</h5>
-                    <p class="text-muted"><i class="fas fa-envelope me-2"></i><?= htmlspecialchars($settings['contact_email']) ?></p>
-                    <p class="text-muted"><i class="fas fa-phone me-2"></i><?= htmlspecialchars($settings['contact_phone']) ?></p>
-                </div>
-            </div>
-            <hr class="my-4 border-secondary">
-            <p class="text-center text-muted mb-0">&copy; <?= date('Y') ?> <?= htmlspecialchars($settings['site_name']) ?>. All rights reserved.</p>
-        </div>
-    </footer>
+    <?php include 'includes/footer.php'; ?>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
